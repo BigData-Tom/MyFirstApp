@@ -2,6 +2,7 @@ import json
 import streamlit as st
 import pandas as pd
 
+
 # Level 1 Code
 def provide_raw_data(path):
     with open(file=path, mode="r") as raw_file:
@@ -16,6 +17,7 @@ def provide_raw_data(path):
         st.json(raw_data)
 
     return raw_data_df, home_team, away_team
+
 
 # Level 2 Code
 def provide_derived_data(raw_data_df):
@@ -41,6 +43,7 @@ def provide_derived_data(raw_data_df):
         st.write(away_stats)
 
     return home_stats, away_stats
+
 
 # Level 3 Code
 def provide_algorithm(raw_data_df):
@@ -75,6 +78,38 @@ def provide_algorithm(raw_data_df):
     return
 
 
+# Level 4 Code
+def provide_decision_support(home_stats, away_stats, home_team, away_team):
+    with st.expander("Metrics for Decision"):
+        first_col, second_col = st.columns(2)
+        home_scoring_rank = home_stats[home_stats.team == home_team].index[0]
+        home_scoring_mean = home_stats[home_stats["team"] == home_team][
+            "points_scored"
+        ].values[0]
+        first_col.metric(label="Home Scoring Mean", value=home_scoring_mean)
+
+        away_scoring_rank = away_stats[away_stats.team == away_team].index[0]
+        away_scoring_mean = away_stats[away_stats["team"] == away_team][
+            "points_scored"
+        ].values[0]
+        second_col.metric(label="Away Scoring Mean", value=away_scoring_mean)
+
+        home_allowed_rank = home_stats[home_stats.team == home_team].index[0]
+        home_allowed_mean = home_stats[home_stats["team"] == home_team][
+            "points_allowed"
+        ].values[0]
+        first_col.metric(label="Home Allowed Mean", value=home_allowed_mean)
+
+        away_allowed_rank = away_stats[away_stats.team == away_team].index[0]
+        away_allowed_mean = away_stats[away_stats["team"] == away_team][
+            "points_allowed"
+        ].values[0]
+        second_col.metric(label="Away Allowed Mean", value=away_allowed_mean)
+
+    return home_scoring_mean, home_allowed_mean, away_scoring_mean, away_allowed_mean
+
+
+
 def main():
     st.title("NFL-Predictor")
 
@@ -89,7 +124,13 @@ def main():
     # Aufrufen Level 3
     provide_algorithm(raw_data_df=raw_data_df)
 
-
+    # Aufrufen Level 4
+    (
+        home_scoring_mean,
+        home_allowed_mean,
+        away_scoring_mean,
+        away_allowed_mean,
+    ) = provide_decision_support(home_stats, away_stats, home_team, away_team)
 
     return
 
