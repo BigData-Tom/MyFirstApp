@@ -1,26 +1,30 @@
 import json
+import requests
 import streamlit as st
 import pandas as pd
 
+URL = "http://127.0.0.1:8000"
+ENDPOINT_DATA = URL + "/data"
 
 # Level 1 Code
-def provide_raw_data(path):
-    with open(file=path, mode="r") as raw_file:
-        raw_data = json.load(raw_file)
+def provide_raw_data():
 
-    raw_data_df = pd.DataFrame(raw_data["games"])
+    response = requests.get(url=ENDPOINT_DATA)
 
-    home_team = st.selectbox(label="Home Team", options=raw_data["teams"], index=0)
-    away_team = st.selectbox(label="Away Team", options=raw_data["teams"], index=1)
+    raw_data = response.json()
+
 
     with st.expander(label="Raw Data"):
         st.json(raw_data)
 
-    return raw_data_df, home_team, away_team
-
+    return
 
 # Level 2 Code
 def provide_derived_data(raw_data_df):
+
+    raw_data_df = pd.DataFrame(raw_data["games"])
+
+
     with st.expander(label="Insights"):
         st.subheader("Home Insights")
         home_stats = raw_data_df.groupby("team")[
@@ -139,34 +143,34 @@ def provide_automated_decision(
 def main():
     st.title("NFL-Predictor")
 
-    path = "data/nfl_data.json"
+
 
     # Aufrufen Level 1 
-    raw_data_df, home_team, away_team = provide_raw_data(path=path)
+    provide_raw_data()
 
-    # Aufrufen Level 2
-    home_stats, away_stats = provide_derived_data(raw_data_df=raw_data_df)
+    # # Aufrufen Level 2
+    # home_stats, away_stats = provide_derived_data(raw_data_df=raw_data_df)
 
-    # Aufrufen Level 3
-    provide_algorithm(raw_data_df=raw_data_df)
+    # # Aufrufen Level 3
+    # provide_algorithm(raw_data_df=raw_data_df)
 
-    # Aufrufen Level 4
-    (
-        home_scoring_mean,
-        home_allowed_mean,
-        away_scoring_mean,
-        away_allowed_mean,
-    ) = provide_decision_support(home_stats, away_stats, home_team, away_team)
+    # # Aufrufen Level 4
+    # (
+    #     home_scoring_mean,
+    #     home_allowed_mean,
+    #     away_scoring_mean,
+    #     away_allowed_mean,
+    # ) = provide_decision_support(home_stats, away_stats, home_team, away_team)
 
-     # Aufrufen Level 5
-    provide_automated_decision(
-        home_scoring_mean,
-        home_allowed_mean,
-        away_scoring_mean,
-        away_allowed_mean,
-        home_team,
-        away_team,
-    )
+    #  # Aufrufen Level 5
+    # provide_automated_decision(
+    #     home_scoring_mean,
+    #     home_allowed_mean,
+    #     away_scoring_mean,
+    #     away_allowed_mean,
+    #     home_team,
+    #     away_team,
+    # )
 
     return
 
